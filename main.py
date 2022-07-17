@@ -62,6 +62,14 @@ ego_vehicle.enable_driving()
 dummy_vehicle = Vehicle(world, vehicle_blueprint, carla.Transform(carla.Location(x=101.774811, y=12.668145, z=5)), tm)
 dummy_vehicle2 = Vehicle(world, vehicle_blueprint, carla.Transform(carla.Location(x=104.068077, y=-3.374074, z=2.768713)), tm)
 
+# generate 4 sensors at intersection
+# TODO: find spots to place cameras
+# int_camera_transform1 = carla.Transform(carla.Location())
+# int_camera_transform2 = carla.Transform(carla.Location())
+
+# world.spawn_actor(camera_blueprint, int_camera_transform1)
+# world.spawn_actor(camera_blueprint, int_camera_transform2)
+
 # enable sensor on ego vehicle
 ego_vehicle.enable_sensor_queue('camera')
 ego_vehicle.enable_sensor_queue('lidar')
