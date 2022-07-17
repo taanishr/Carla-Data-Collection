@@ -28,22 +28,7 @@ class Vehicle:
     def get_id(self):
         return self.vehicle.id
 
-#Spawn car with sensors attached
-# class EgoVehicle(Vehicle):
-#     def __init__(self, world, vehicle_blueprint, spawn_point, traffic_manager, sensor_blueprint, sensor_initial_transform):
-#         super().__init__(world, vehicle_blueprint, spawn_point, traffic_manager)
-#         self.sensor_blueprint = sensor_blueprint
-#         self.sensor_initial_transform = sensor_initial_transform
-#         self.sensor_queue = queue.Queue()
-#         self.sensor = world.spawn_actor(sensor_blueprint, sensor_initial_transform, attach_to=self.vehicle)
-
-#     def enable_sensor_queue(self):
-#         self.sensor.listen(self.sensor_queue.put)
-    
-#     def get_sensor_queue(self):
-#         return self.sensor_queue
-    
-# spawn car with sensors attached
+# spawn car with ability to add sensors
 class EgoVehicle(Vehicle):
     def __init__(self, world, vehicle_blueprint, spawn_point, traffic_manager):
         super().__init__(world, vehicle_blueprint, spawn_point, traffic_manager)
