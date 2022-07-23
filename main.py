@@ -115,13 +115,7 @@ def checkForBoundingBoxes(actor_name, ego_actor):
                     Bounding_Boxes = GenerateBoundingBoxes(npc, projection_matrix, camera_matrix)
                     f.write('3D Bounding Box from view of ' + actor_name + ': ' + str(Bounding_Boxes.build3dBoundingBox()) + '\n')
 
-                    print(image_w)
-                    print(image_h)
                     x_max, x_min, y_max, y_min = Bounding_Boxes.build2dBoundingBox()
-                    print(x_max)
-                    print(x_min)
-                    print(y_max)
-                    print(y_min)
                     if x_min > 0 and x_max < image_w and y_min > 0 and y_max < image_h: 
                         f.write(f'2D Bounding Box from view of ' + actor_name + ': ' + str([x_max, x_min, y_max, y_min]) + '\n')
                         print("working")
