@@ -24,20 +24,21 @@ class GenerateBoundingBoxes():
     @staticmethod
     def get_image_point(location, projection_matrix, camera_matrix):
         # get coordinates from actual 3d point, then convert it to the camera's coordinates
-        points = numpy.array([location.x, location.y, location.z, 1])
-        camera_points = numpy.dot(points, camera_matrix)
+        point = numpy.array([location.x, location.y, location.z, 1])
+        # point changed to camera cords
+        point_pc = numpy.dot(camera_matrix, point)
 
         # changing x y z system to y -z x system
-        camera_points = [camera_points[1], -camera_points[2], camera_points[0]]
+        point_pc = [point_pc[1], -point_pc[2], point_pc[0]]
 
-        # project 3d camera points to 2d using dot multiplication
-        image_points = numpy.dot(camera_points, projection_matrix)
+        # project 3d camera point to 2d using dot multiplication
+        image_point = numpy.dot(projection_matrix, point_pc)
 
         # divide by z values
-        image_points[1] = image_points[1] / image_points[2]
-        image_points[0] = image_points[0] / image_points[2]
+        image_point[1] = image_point[1] / image_point[2]
+        image_point[0] = image_point[0] / image_point[2]
 
-        return image_points[0:2]
+        return image_point[0:2]
     
     # builds a 3d bounding box
     def build3dBoundingBox(self):
