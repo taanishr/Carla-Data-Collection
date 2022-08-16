@@ -2,8 +2,9 @@ import queue
 
 # vehicle class; allows for easy vehicle spawning
 class Vehicle:
-    def __init__(self, world, vehicle_blueprint, spawn_point, traffic_manager):
+    def __init__(self, world, vehicle_blueprint, type, spawn_point, traffic_manager):
         self.vehicle_blueprint = vehicle_blueprint
+        self.type = type
         self.spawn_point = spawn_point
         self.traffic_manager = traffic_manager
         self.is_driving = False
@@ -24,14 +25,14 @@ class Vehicle:
     def enable_driving(self):
         self.vehicle.set_autopilot(True, self.traffic_manager.get_port())
         self.is_driving = True
-    
+
     def get_id(self):
         return self.vehicle.id
 
 # spawn car with ability to add sensors
 class EgoVehicle(Vehicle):
-    def __init__(self, world, vehicle_blueprint, spawn_point, traffic_manager):
-        super().__init__(world, vehicle_blueprint, spawn_point, traffic_manager)
+    def __init__(self, world, vehicle_blueprint, type, spawn_point, traffic_manager):
+        super().__init__(world, vehicle_blueprint, type, spawn_point, traffic_manager)
         self.world = world
         self.sensor_queues = {}
         self.sensors = {}

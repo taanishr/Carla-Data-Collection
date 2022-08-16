@@ -40,6 +40,8 @@ class GenerateBoundingBoxes():
 
         return image_point[0:2]
     
+    
+
     # builds a 3d bounding box
     def build3dBoundingBox(self):
         edges = []

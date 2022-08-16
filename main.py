@@ -1,3 +1,5 @@
+from turtle import distance
+from uuid import NAMESPACE_OID
 import numpy
 import carla
 from datetime import datetime
@@ -5,6 +7,8 @@ import os
 import time
 import queue
 import math
+from GenerateLabelFile import Label
+from GenerateCalibFile import Calib
 
 from GenerateBoundingBoxes import GenerateBoundingBoxes
 from Vehicle import *
@@ -56,8 +60,12 @@ vehicle_blueprint = blueprint_library.filter('model3')[0]
 
 vehicle_spawn_point = carla.Transform(carla.Location(x=80, y=27.83, z=1))
 
-ego_vehicle = EgoVehicle(world, vehicle_blueprint, vehicle_spawn_point, tm)
+vehicles = []
+
+ego_vehicle = EgoVehicle(world, vehicle_blueprint, 'car', vehicle_spawn_point, tm)
 ego_vehicle.enable_driving()
+
+vehicles.append(ego_vehicle)
 
 # generate 2 dummy vehicles at intersection
 # dummy_vehicle = Vehicle(world, vehicle_blueprint, carla.Transform(carla.Location(x=101.774811, y=12.668145, z=5)), tm)
@@ -94,8 +102,8 @@ fov = camera_blueprint.get_attribute("fov").as_float()
 
 projection_matrix = GenerateBoundingBoxes.build_projection_matrix(image_w, image_h, fov)
 
-# Checks for bounding boxes
-def checkForBoundingBoxes(actor_name, ego_actor):
+# Creates Label data
+def createLabelData(actor_name, ego_actor):
     # loop through all vehicles in world
     for npc in world.get_actors().filter('*vehicle*'):
         # check if vehicle isn't the same as ego actor
@@ -107,20 +115,43 @@ def checkForBoundingBoxes(actor_name, ego_actor):
                 forward_vec = ego_actor.get_transform().get_forward_vector()
                 ray = npc.get_transform().location - ego_actor.get_transform().location
                 if forward_vec.dot(ray) > 1:
+                    # create state object
+                    label = Label()
                     # open file
-                    bounding_box_path = os.path.abspath(".\\bounding boxes.txt")
-                    f = open(bounding_box_path, 'a')
-                    
-                    # write 3d and 2d bounding boxes seen from ego_actor to file
+                    label_data_path = os.path.abspath(".\\labels.txt")
+                    # f = open(label_data_path, 'a')
+
+                    # Record vehicle type
+                    for vehicle in vehicles:
+                        if vehicle.get_id() == npc.id:
+                            label.class_name = vehicle.type 
+                        else:
+                            label = 'DontCare'
+
+                    # Record location and dimensions of vehicle
+                    label.location = [npc.bounding_box.location.x, npc.bounding_box.location.y, npc.bounding_box.location.z]
+
+                    # write 2d bounding boxes seen from ego_actor to file
                     Bounding_Boxes = GenerateBoundingBoxes(npc, projection_matrix, camera_matrix)
-                    f.write('3D Bounding Box from view of ' + actor_name + ': ' + str(Bounding_Boxes.build3dBoundingBox()) + '\n')
 
                     x_max, x_min, y_max, y_min = Bounding_Boxes.build2dBoundingBox()
                     if x_min > 0 and x_max < image_w and y_min > 0 and y_max < image_h: 
-                        f.write(f'2D Bounding Box from view of ' + actor_name + ': ' + str([x_max, x_min, y_max, y_min]) + '\n')
-                        print("working")
+                        label.bounding_box = [x_max, x_min, y_max, y_min]
+
+                    # TODO: Calculate occlusion and truncation
+
+                    label.dimensions = [float(npc.bounding_box.extent.x * 2), float(npc.bounding_box.extent.y * 2), float(npc.bounding_box.extent.z * 2)]
+
+                    # Record camera angle
+                    label.rotation_y = ego_actor.get_transform().rotation.yaw
                     
-                    f.close()
+                    #     f.write(f'2D Bounding Box from view of ' + actor_name + ': ' + str([x_max, x_min, y_max, y_min]) + '\n')
+                    
+                    # f.close()
+
+def createCalibData(image_h, image_W):
+    calib = Calib(image_h, image_W)
+    calib.save_calib_matrix("calib.txt")
 
 # set up file system
 os.chdir("..\\")
@@ -157,6 +188,10 @@ while True:
     # get camera matrix
     camera_matrix = numpy.array(int_cam1.get_transform().get_inverse_matrix())
     
-    checkForBoundingBoxes("int_cam1", int_cam1)
+    createLabelData("int_cam1", int_cam1)
+
+    # TODO: Save Label data to file
+
+    createCalibData(image_h, image_w)
 
     os.chdir("..\\")
