@@ -12,6 +12,15 @@ from GenerateCalibFile import Calib
 
 from GenerateBoundingBoxes import GenerateBoundingBoxes
 from Vehicle import *
+import numpy as np
+from math import cos, sin
+from utils import degrees_to_radians, transform_lidar
+
+from constants import LIDAR_HEIGHT_POS, LIDAR_DATA_FORMAT, LIDAR_PATH
+from dataexport import save_lidar_data
+
+if not os.path.exists(LIDAR_PATH):
+    os.mkdir(LIDAR_PATH)
 
 # set up world
 client = carla.Client('localhost', 2000)
@@ -87,10 +96,11 @@ int_cam2.listen(int_cam2_queue.put)
 
 #generate 1 lidar sensor
 int_lidar1 = world.spawn_actor(lidar_blueprint, int_sensor1_transform)
-
 int_lidar1_queue = queue.Queue()
-
 int_lidar1.listen(int_lidar1_queue.put)
+
+# Generate depth camera
+
 
 # generate camera matrix
 camera_matrix = numpy.array(int_cam1.get_transform().get_inverse_matrix())
@@ -182,8 +192,10 @@ while True:
 
     # save intersection lidar data
     lidar_path = os.path.abspath(".\\INT_LIDAR1")
-    lidar = int_lidar1_queue.get()
-    lidar.save_to_disk(lidar_path)
+    lidar_data = int_lidar1_queue.get()
+    
+    # Save lidar as bin file
+    save_lidar_data(f"{LIDAR_PATH}/{tick}.bin", transform_lidar(lidar_data, int_lidar1, int_cam1))
 
     # get camera matrix
     camera_matrix = numpy.array(int_cam1.get_transform().get_inverse_matrix())
