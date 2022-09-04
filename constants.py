@@ -2,6 +2,7 @@
 
 # Lidar can be saved in bin to comply to kitti, or the standard .ply format
 LIDAR_DATA_FORMAT = "bin"
+LIDAR_PATH = "./velodyne"
 
 OCCLUDED_VERTEX_COLOR = (255, 0, 0)
 VISIBLE_VERTEX_COLOR = (0, 255, 0)
