@@ -16,100 +16,91 @@ import numpy as np
 from math import cos, sin
 from utils import degrees_to_radians, transform_lidar
 
-from constants import LIDAR_HEIGHT_POS, LIDAR_DATA_FORMAT, LIDAR_PATH
+from constants import *
 from dataexport import save_lidar_data
 
+# Create lidar path
 if not os.path.exists(LIDAR_PATH):
     os.mkdir(LIDAR_PATH)
 
-# set up world
+# Set up world
 client = carla.Client('localhost', 2000)
-
 world = client.get_world()
 
-# set world to synchronous
+# Set world to synchronous
 settings = world.get_settings()
-
 settings.synchronous_mode = True
-
 world.apply_settings(settings)
 
-# get spawn points and blueprints
+# Get spawn points and blueprints
 spawn_points = world.get_map().get_spawn_points()
 
-# set up blueprints
+# Set up blueprints
 blueprint_library = world.get_blueprint_library()
 
-# # code to get spectator position; useful for spawning vehicles where you are in the simulator. Must disable synchronous mode to work (just comment out the code)
-# i = 0
-# while i < 30:
-#     print(world.get_spectator().get_transform())
-#     i += 1
-#     time.sleep(1)
-
-# enable traffic manager
+# Enable traffic manager
 tm = client.get_trafficmanager()
 tm.set_synchronous_mode(True)
 
-# set up camera attached to ego vehicle
+# Set up camera attached to ego vehicle
 camera_blueprint = blueprint_library.find('sensor.camera.rgb')
+camera_blueprint.set_attribute('image_size_x', WINDOW_WIDTH)
+camera_blueprint.set_attribute('image_size_y', WINDOW_HEIGHT)
 
-# set up lidar sensor attached to ego vehicle
+# Set up lidar sensor attached to ego vehicle
 lidar_blueprint = blueprint_library.find("sensor.lidar.ray_cast")
-
-lidar_blueprint.set_attribute('channels', '64')
-lidar_blueprint.set_attribute('points_per_second', '100000')
+lidar_blueprint.set_attribute('channels', '40')
+lidar_blueprint.set_attribute('points_per_second', '720000')
 lidar_blueprint.set_attribute('rotation_frequency', '10')
-lidar_blueprint.set_attribute('range',str(20))
+lidar_blueprint.set_attribute('range', MAX_RENDER_DEPTH_IN_METERS)
+lidar_blueprint.set_attribute('lower_fov', -16)
+lidar_blueprint.set_attribute('upper_fov', 7)
+#lidar_transform = carla.Transform(carla.Location(z=2))
 
-lidar_transform = carla.Transform(carla.Location(z=2))
+# Set up depth camera
+depth_cam_blueprint = blueprint_library.find("sensor.camera.depth")
+depth_cam_blueprint.set_attribute('image_size_x', WINDOW_WIDTH)
+depth_cam_blueprint.set_attribute('image_size_y', WINDOW_HEIGHT)
+depth_cam_blueprint.set_attribute('fov', 90.0)
 
-# spawn ego vehicle
+# Spawn ego vehicle
 vehicle_blueprint = blueprint_library.filter('model3')[0]
 
+# Spawn vehicles
 vehicle_spawn_point = carla.Transform(carla.Location(x=80, y=27.83, z=1))
-
 vehicles = []
-
 ego_vehicle = EgoVehicle(world, vehicle_blueprint, 'car', vehicle_spawn_point, tm)
 ego_vehicle.enable_driving()
-
 vehicles.append(ego_vehicle)
 
-# generate 2 dummy vehicles at intersection
-# dummy_vehicle = Vehicle(world, vehicle_blueprint, carla.Transform(carla.Location(x=101.774811, y=12.668145, z=5)), tm)
-# dummy_vehicle2 = Vehicle(world, vehicle_blueprint, carla.Transform(carla.Location(x=104.068077, y=-3.374074, z=2.768713)), tm)
-
-# generate 3 sensors at intersection
-# generate 2 cameras
+# Generate 3 sensors at intersection (2 RGB cams, 1 depth cam)
 int_sensor1_transform = carla.Transform(carla.Location(x=114.093, y=29.769, z=5.853), carla.Rotation(yaw=180))
 int_sensor2_transform = carla.Transform(carla.Location(x=104.236, y=22.047, z=5.853), carla.Rotation(yaw=135))
 
 int_cam1 = world.spawn_actor(camera_blueprint, int_sensor1_transform)
 int_cam2 = world.spawn_actor(camera_blueprint, int_sensor2_transform)
+depth_cam = world.spawn_actor(depth_cam_blueprint, int_sensor1_transform)
 
 int_cam1_queue = queue.Queue()
 int_cam2_queue = queue.Queue()
+int_depth_cam_queue = queue.Queue()
 
 int_cam1.listen(int_cam1_queue.put)
 int_cam2.listen(int_cam2_queue.put)
+depth_cam.listen(int_depth_cam_queue.put)
 
-#generate 1 lidar sensor
+# Generate 1 lidar sensor
 int_lidar1 = world.spawn_actor(lidar_blueprint, int_sensor1_transform)
 int_lidar1_queue = queue.Queue()
 int_lidar1.listen(int_lidar1_queue.put)
 
-# Generate depth camera
-
-
-# generate camera matrix
+# Generate camera matrix
 camera_matrix = numpy.array(int_cam1.get_transform().get_inverse_matrix())
 
-# generate projection matrix from camera intrinsics
+# Generate projection matrix from camera intrinsics
 image_w = camera_blueprint.get_attribute("image_size_x").as_int()
 image_h = camera_blueprint.get_attribute("image_size_y").as_int()
 fov = camera_blueprint.get_attribute("fov").as_float()
-
 projection_matrix = GenerateBoundingBoxes.build_projection_matrix(image_w, image_h, fov)
 
 # Creates Label data
