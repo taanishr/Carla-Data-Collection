@@ -12,7 +12,7 @@ class GenerateBoundingBoxes():
 
     # build a projection matrix based on camera intrinsics
     @staticmethod
-    def build_projection_matrix(width, height, fov):
+    def build_projection_matrix(width, height, fov=90):
         focal = width / (2.0 * numpy.tan(fov * numpy.pi / 360.0))
         projection_matrix = numpy.identity(3)
         projection_matrix[0, 0] = projection_matrix[1, 1] = focal

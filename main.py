@@ -19,6 +19,8 @@ from utils import degrees_to_radians, transform_lidar
 from constants import *
 from dataexport import save_lidar_data
 
+from carla.Transform import transform
+
 # Create lidar path
 if not os.path.exists(LIDAR_PATH):
     os.mkdir(LIDAR_PATH)
@@ -98,10 +100,7 @@ int_lidar1.listen(int_lidar1_queue.put)
 camera_matrix = numpy.array(int_cam1.get_transform().get_inverse_matrix())
 
 # Generate projection matrix from camera intrinsics
-image_w = camera_blueprint.get_attribute("image_size_x").as_int()
-image_h = camera_blueprint.get_attribute("image_size_y").as_int()
-fov = camera_blueprint.get_attribute("fov").as_float()
-projection_matrix = GenerateBoundingBoxes.build_projection_matrix(image_w, image_h, fov)
+projection_matrix = GenerateBoundingBoxes.build_projection_matrix(WINDOW_WIDTH, WINDOW_HEIGHT)
 
 # Creates Label data
 def createLabelData(actor_name, ego_actor):
@@ -136,7 +135,7 @@ def createLabelData(actor_name, ego_actor):
                     Bounding_Boxes = GenerateBoundingBoxes(npc, projection_matrix, camera_matrix)
 
                     x_max, x_min, y_max, y_min = Bounding_Boxes.build2dBoundingBox()
-                    if x_min > 0 and x_max < image_w and y_min > 0 and y_max < image_h: 
+                    if x_min > 0 and x_max < WINDOW_WIDTH and y_min > 0 and y_max < WINDOW_HEIGHT: 
                         label.bounding_box = [x_max, x_min, y_max, y_min]
 
                     # TODO: Calculate occlusion and truncation
@@ -150,8 +149,8 @@ def createLabelData(actor_name, ego_actor):
                     
                     # f.close()
 
-def createCalibData(image_h, image_W):
-    calib = Calib(image_h, image_W)
+def createCalibData(WINDOW_HEIGHT, WINDOW_WIDTH):
+    calib = Calib(WINDOW_HEIGHT, WINDOW_WIDTH)
     calib.save_calib_matrix("calib.txt")
 
 # set up file system
@@ -172,6 +171,8 @@ while True:
     path = os.path.abspath(".\\") + f"\\{tick}"
     os.mkdir(path)
     os.chdir(path)
+
+    measurements, sensor_data = client.read_data()
 
     # save intersection camera data
     int_cam1_path = os.path.abspath(".\\INT_CAMERA1")
@@ -195,6 +196,6 @@ while True:
 
     # TODO: Save Label data to file
 
-    createCalibData(image_h, image_w)
+    createCalibData(WINDOW_HEIGHT, WINDOW_WIDTH)
 
     os.chdir("..\\")
