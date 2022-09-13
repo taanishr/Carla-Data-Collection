@@ -69,7 +69,7 @@ depth_cam_blueprint.set_attribute('fov', str(90.0))
 vehicle_blueprint = blueprint_library.filter('model3')[0]
 
 # Spawn vehicles
-vehicle_spawn_point = carla.Transform(carla.Location(x=80, y=27.83, z=1))
+vehicle_spawn_point = carla.Transform(carla.Location(x=100, y=40.83, z=1))
 vehicles = []
 ego_vehicle = EgoVehicle(world, vehicle_blueprint, 'car', vehicle_spawn_point, tm)
 ego_vehicle.enable_driving()
@@ -173,7 +173,8 @@ while True:
 
         # change directory to sub folder
     path = os.path.abspath(".\\") + f"\\{tick}"
-    os.mkdir(path)
+    if not os.path.exists(path):
+        os.mkdir(path)
     os.chdir(path)
 
     #measurements, sensor_data = client.read_data()
