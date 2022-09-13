@@ -25,7 +25,7 @@ class Label:
         assert -pi <= alpha <= pi, "Alpha must be in range [-pi..pi]"
         self.alpha = alpha
 
-    def set_bbox(self, bbox: List[int]):
+    def set_bbox(self, bbox):
         assert len(bbox) == 4, """ Bbox must be 2D bounding box of object in the image (0-based index):
                      contains left, top, right, bottom pixel coordinates (two points)"""
         self.bbox = bbox
