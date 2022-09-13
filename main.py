@@ -19,7 +19,7 @@ from utils import degrees_to_radians, transform_lidar
 from constants import *
 from dataexport import save_lidar_data
 
-from carla.Transform import transform
+#from carla.Transform import *
 
 # Create lidar path
 if not os.path.exists(LIDAR_PATH):
@@ -46,24 +46,24 @@ tm.set_synchronous_mode(True)
 
 # Set up camera attached to ego vehicle
 camera_blueprint = blueprint_library.find('sensor.camera.rgb')
-camera_blueprint.set_attribute('image_size_x', WINDOW_WIDTH)
-camera_blueprint.set_attribute('image_size_y', WINDOW_HEIGHT)
+camera_blueprint.set_attribute('image_size_x', str(WINDOW_WIDTH))
+camera_blueprint.set_attribute('image_size_y', str(WINDOW_HEIGHT))
 
 # Set up lidar sensor attached to ego vehicle
 lidar_blueprint = blueprint_library.find("sensor.lidar.ray_cast")
 lidar_blueprint.set_attribute('channels', '40')
 lidar_blueprint.set_attribute('points_per_second', '720000')
 lidar_blueprint.set_attribute('rotation_frequency', '10')
-lidar_blueprint.set_attribute('range', MAX_RENDER_DEPTH_IN_METERS)
-lidar_blueprint.set_attribute('lower_fov', -16)
-lidar_blueprint.set_attribute('upper_fov', 7)
+lidar_blueprint.set_attribute('range', str(MAX_RENDER_DEPTH_IN_METERS))
+lidar_blueprint.set_attribute('lower_fov', str(-16))
+lidar_blueprint.set_attribute('upper_fov', str(7))
 #lidar_transform = carla.Transform(carla.Location(z=2))
 
 # Set up depth camera
 depth_cam_blueprint = blueprint_library.find("sensor.camera.depth")
-depth_cam_blueprint.set_attribute('image_size_x', WINDOW_WIDTH)
-depth_cam_blueprint.set_attribute('image_size_y', WINDOW_HEIGHT)
-depth_cam_blueprint.set_attribute('fov', 90.0)
+depth_cam_blueprint.set_attribute('image_size_x', str(WINDOW_WIDTH))
+depth_cam_blueprint.set_attribute('image_size_y', str(WINDOW_HEIGHT))
+depth_cam_blueprint.set_attribute('fov', str(90.0))
 
 # Spawn ego vehicle
 vehicle_blueprint = blueprint_library.filter('model3')[0]
@@ -101,6 +101,10 @@ camera_matrix = numpy.array(int_cam1.get_transform().get_inverse_matrix())
 
 # Generate projection matrix from camera intrinsics
 projection_matrix = GenerateBoundingBoxes.build_projection_matrix(WINDOW_WIDTH, WINDOW_HEIGHT)
+
+# Get camera and lidar sensor transforms
+camera_to_car_transform = int_cam1.get_transform()
+#lidar_to_car_transform = int_lidar1.get_transform() * Transform(Rotation(yaw=90), Scale(z=-1))
 
 # Creates Label data
 def createLabelData(actor_name, ego_actor):
@@ -172,7 +176,11 @@ while True:
     os.mkdir(path)
     os.chdir(path)
 
-    measurements, sensor_data = client.read_data()
+    #measurements, sensor_data = client.read_data()
+
+    #world_transform = Transform(
+    #        measurements.player_measurements.transform
+    #    )
 
     # save intersection camera data
     int_cam1_path = os.path.abspath(".\\INT_CAMERA1")
