@@ -2,7 +2,7 @@
 
 # Lidar can be saved in bin to comply to kitti, or the standard .ply format
 LIDAR_DATA_FORMAT = "bin"
-LIDAR_PATH = "./velodyne"
+LIDAR_PATH = "A:\\Computer Vision\\CARLA\\CARLA_0.9.13\\CARLA_0.9.13\\WindowsNoEditor\\Carla-Data-Collection\\velodyne"
 
 OCCLUDED_VERTEX_COLOR = (255, 0, 0)
 VISIBLE_VERTEX_COLOR = (0, 255, 0)
