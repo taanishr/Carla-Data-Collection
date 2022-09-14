@@ -1,8 +1,46 @@
 import math
 import numpy as np
+import os
+from constants import *
 
 def degrees_to_radians(degrees):
     return degrees * math.pi / 180
+
+def create_kitti_file_structure():
+
+    """
+    Creates KITTI file structure
+    """
+
+    if not os.path.exists(MAIN_FOLDER):
+        os.mkdir(MAIN_FOLDER)
+    
+    if not os.path.exists(TESTING_FOLDER):
+        os.mkdir(TESTING_FOLDER)
+    
+    if not os.path.exists(TRAINING_FOLDER):
+        os.mkdir(TRAINING_FOLDER)
+    
+    if not os.path.exists(TESTING_CALIB):
+        os.mkdir(TESTING_CALIB)
+    
+    if not os.path.exists(TRAINING_CALIB):
+        os.mkdir(TRAINING_CALIB)
+
+    if not os.path.exists(TESTING_IMAGE):
+        os.mkdir(TESTING_IMAGE)
+    
+    if not os.path.exists(TRAINING_IMAGE):
+        os.mkdir(TRAINING_IMAGE)
+    
+    if not os.path.exists(TESTING_LIDAR):
+        os.mkdir(TESTING_LIDAR)
+    
+    if not os.path.exists(TRAINING_LIDAR):
+        os.mkdir(TRAINING_LIDAR)
+    
+    if not os.path.exists(TRAINING_LABELS):
+        os.mkdir(TRAINING_LABELS)
 
 def transform_lidar(lidar_data, lidar_sensor, camera_sensor):
     """
