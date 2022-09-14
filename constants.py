@@ -1,5 +1,21 @@
 """ DATA GENERATION SETTINGS"""
 
+# Variables for KITTI File structure
+MAIN_FOLDER = "./KITTI_CARLA"
+TESTING_FOLDER = f"{MAIN_FOLDER}/TESTING"
+TRAINING_FOLDER = f"{MAIN_FOLDER}/TRAINING"
+
+TESTING_CALIB = f"{TESTING_FOLDER}/calib"
+TRAINING_CALIB = f"{TRAINING_FOLDER}/calib"
+
+TESTING_IMAGE = f"{TESTING_FOLDER}/image_2"
+TRAINING_IMAGE = f"{TRAINING_FOLDER}/image_2"
+
+TESTING_LIDAR = f"{TESTING_FOLDER}/velodyne"
+TRAINING_LIDAR = f"{TRAINING_FOLDER}/velodyne"
+
+TRAINING_LABELS = f"{TRAINING_FOLDER}/label_2"
+
 # Lidar can be saved in bin to comply to kitti, or the standard .ply format
 LIDAR_DATA_FORMAT = "bin"
 LIDAR_PATH = "A:\\Computer Vision\\CARLA\\CARLA_0.9.13\\CARLA_0.9.13\\WindowsNoEditor\\Carla-Data-Collection\\velodyne"
