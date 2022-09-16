@@ -25,6 +25,8 @@ def setup_sensors(blueprint_library):
     depth_cam_blueprint.set_attribute('image_size_y', str(WINDOW_HEIGHT))
     depth_cam_blueprint.set_attribute('fov', str(90.0))
 
+    return camera_blueprint, lidar_blueprint, depth_cam_blueprint
+
 def generate_sensors(world, camera_blueprint, lidar_blueprint, depth_cam_blueprint):
     
     int_sensor1_transform = carla.Transform(carla.Location(x=114.093, y=29.769, z=5.853), carla.Rotation(yaw=180))
