@@ -18,7 +18,7 @@ class Calib:
 
         self.TR_velodyne = np.column_stack((self.TR_velodyne, np.array([0, 0, 0])))
         self.TR_imu_to_velo = np.identity(3)
-        self. TR_imu_to_velo = np.column_stack((self.TR_imu_to_velo, np.array([0, 0, 0])))
+        self.TR_imu_to_velo = np.column_stack((self.TR_imu_to_velo, np.array([0, 0, 0])))
 
     def generate_intrinsic_mat(self):
         window_height = self.height
@@ -43,8 +43,12 @@ class Calib:
 
     def save_calib_matrix(self, filename):
         with open(filename, 'w') as f:
-            for i in range(4):  # Avod expects all 4 P-matrices even though we only use the first
+            for i in range(4):  # Only one camera is used
                 self.write_flat(f, "P" + str(i), self.P0)
             self.write_flat(f, "R0_rect", self.R0)
             self.write_flat(f, "Tr_velo_to_cam", self.TR_velodyne)
             self.write_flat(f, "TR_imu_to_velo", self.TR_imu_to_velo)
+
+def createCalibData(file_name):
+    calib = Calib(WINDOW_HEIGHT, WINDOW_WIDTH)
+    calib.save_calib_matrix(file_name)
