@@ -1,7 +1,6 @@
 # Carla-Data-Collection
 
 ## Known Issues
-- Lidar files have not yet been converted to the KITTI bin format
 - Saving KITTI labels has not yet been implemented
 - Occlusion has not been implemented into KITTI labels yet (view KITTI label format [here](https://github.com/bostondiditeam/kitti/blob/master/resources/devkit_object/readme.txt)
 
