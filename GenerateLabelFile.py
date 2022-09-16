@@ -117,6 +117,9 @@ def createLabelData(file_name, world, vehicles, projection_matrix, camera_matrix
             # Confirm npc vehicle is within 50 meters
             dist = npc.get_transform().location.distance(ego_actor.get_transform().location)
 
+
+            # TODO: Calculate occlusion and truncation and replace dist heuristic
+            
             if dist < 50:
                 
                 # Determine if vehicle is in front of the camera
@@ -145,8 +148,6 @@ def createLabelData(file_name, world, vehicles, projection_matrix, camera_matrix
                     x_max, x_min, y_max, y_min = Bounding_Boxes.build2dBoundingBox()
                     if x_min > 0 and x_max < WINDOW_WIDTH and y_min > 0 and y_max < WINDOW_HEIGHT: 
                         label.bounding_box = [x_max, x_min, y_max, y_min]
-
-                    # TODO: Calculate occlusion and truncation
 
                     label.dimensions = [float(npc.bounding_box.extent.x * 2), float(npc.bounding_box.extent.y * 2), float(npc.bounding_box.extent.z * 2)]
 
