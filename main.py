@@ -75,7 +75,6 @@ camera_matrix = numpy.array(int_cam1.get_transform().get_inverse_matrix())
 
 # Get camera and lidar sensor transforms
 camera_to_car_transform = int_cam1.get_transform()
-#lidar_to_car_transform = int_lidar1.get_transform() * Transform(Rotation(yaw=90), Scale(z=-1))
 
 # Start server tick
 tick = 0
