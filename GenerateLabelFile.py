@@ -15,7 +15,7 @@ class Label:
         self.rotation_y = None
         self.extent = None
         
-    def set_type(self, obj_type: str):
+    def set_class_name(self, obj_type: str):
         self.type = obj_type
     
     def set_truncated(self, truncated: float):
@@ -86,7 +86,6 @@ class Label:
         
         self.location = " ".join(map(str, [y, -z, x]))
         
-
     def set_rotation_y(self, rotation_y: float):
         assert - \
             pi <= rotation_y <= pi, "Rotation y must be in range [-pi..pi] - found {}".format(
@@ -131,7 +130,7 @@ def createLabelData(file_name, world, vehicles, projection_matrix, camera_matrix
                     # Record vehicle type. Currently only vehicles are spawned.
                     for vehicle in vehicles:
                         if vehicle.get_id() == npc.id:
-                            label.class_name = "Car"
+                            label.set_class_name("Car")
 
                     # Record location and dimensions of vehicle
                     label.set_3d_object_location((npc.bounding_box.location.x, npc.bounding_box.location.y, npc.bounding_box.location.z))
@@ -142,12 +141,12 @@ def createLabelData(file_name, world, vehicles, projection_matrix, camera_matrix
                     if x_min > 0 and x_max < WINDOW_WIDTH and y_min > 0 and y_max < WINDOW_HEIGHT: 
                         label.set_bbox((x_max, x_min, y_max, y_min))
 
-                    # Set vehicle 3D object dimensions
+                    # Set vehicle 3D object dimensions and extent
                     bbox_extent = (float(npc.bounding_box.extent.z * 2), float(npc.bounding_box.extent.x * 2), float(npc.bounding_box.extent.y * 2))
                     label.set_3d_object_dimensions(bbox_extent)
 
                     # Record camera angle
-                    label.rotation_y = ego_actor.get_transform().rotation.yaw
+                    label.set_rotation_y(ego_actor.get_transform().rotation.yaw)
                     
                     f.write(label)  
     
