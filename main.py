@@ -48,6 +48,7 @@ blueprint_library = world.get_blueprint_library()
 tm = client.get_trafficmanager()
 tm.set_synchronous_mode(True)
 
+# Setup and generate sensors
 camera_blueprint, lidar_blueprint, depth_cam_blueprint = setup_sensors()
 
 int_cam1, int_cam2, depth_cam,\
@@ -101,10 +102,7 @@ while True:
     int_cam1_image.save_to_disk(f"{curr_folder}/tick")
     save_lidar_data(f"{curr_folder}/velodyne/{tick}.bin", transform_lidar(lidar_data, int_lidar1, int_cam1))
     createCalibData(f"{curr_folder}/calib/{tick}.txt")
-
-    # TODO: Save Label data to file
-    createLabelData(f"{curr_folder}/label_2/{tick}.txt", world, vehicles, projection_matrix, 
-                    camera_matrix, int_cam1)
+    createLabelData(f"{curr_folder}/label_2/{tick}.txt", world, vehicles, projection_matrix, camera_matrix, int_cam1)
 
     # Flip save_to_train
     save_to_train = not save_to_train
