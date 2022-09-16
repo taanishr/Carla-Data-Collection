@@ -105,7 +105,7 @@ while True:
 
     # TODO: Save Label data to file
     createLabelData(f"{curr_folder}/label_2/{tick}.txt", world, vehicles, projection_matrix, 
-                    camera_matrix,int_cam1, ego_vehicle)
+                    camera_matrix, int_cam1)
 
     # Flip save_to_train
     save_to_train = not save_to_train
