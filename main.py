@@ -70,6 +70,9 @@ camera_matrix = numpy.array(int_cam1.get_transform().get_inverse_matrix())
 # Generate projection matrix from camera intrinsics
 projection_matrix = GenerateBoundingBoxes.build_projection_matrix(WINDOW_WIDTH, WINDOW_HEIGHT)
 
+# Get camera matrix
+camera_matrix = numpy.array(int_cam1.get_transform().get_inverse_matrix())
+
 # Get camera and lidar sensor transforms
 camera_to_car_transform = int_cam1.get_transform()
 #lidar_to_car_transform = int_lidar1.get_transform() * Transform(Rotation(yaw=90), Scale(z=-1))
@@ -90,25 +93,19 @@ while True:
 
     # Deque data
     int_cam1_image = int_cam1_queue.get()
-    int_cam2_image = int_cam2_queue.get()
     lidar_data = int_lidar1_queue.get()
-
-    # Get camera matrix
-    camera_matrix = numpy.array(int_cam1.get_transform().get_inverse_matrix())
 
     # Save to training if save_to_train is True, testing otherwise
     curr_folder = TRAINING_FOLDER if save_to_train else TESTING_FOLDER
     
     # Save data
     int_cam1_image.save_to_disk(f"{curr_folder}/tick")
-    #int_cam2_image.save_to_disk(f"{curr_folder}/tick")
-
     save_lidar_data(f"{curr_folder}/velodyne/{tick}.bin", transform_lidar(lidar_data, int_lidar1, int_cam1))
-    
     createCalibData(f"{curr_folder}/calib/{tick}.txt")
 
     # TODO: Save Label data to file
-    createLabelData("int_cam1", int_cam1)
+    createLabelData(f"{curr_folder}/label_2/{tick}.txt", world, vehicles, projection_matrix, 
+                    camera_matrix,int_cam1, ego_vehicle)
 
     # Flip save_to_train
     save_to_train = not save_to_train
