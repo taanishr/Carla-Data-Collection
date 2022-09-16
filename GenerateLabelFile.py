@@ -29,8 +29,11 @@ class Label:
         self.alpha = alpha
 
     def set_bbox(self, bbox):
-        assert len(bbox) == 4, """ Bbox must be 2D bounding box of object in the image (0-based index):
-                     contains left, top, right, bottom pixel coordinates (two points)"""
+        """ 
+        Bbox must be 2D bounding box of object in the image (0-based index):
+        contains left, top, right, bottom pixel coordinates (two points)
+        """
+        assert len(bbox) == 4
         self.bbox = bbox
 
     def set_3d_object_dimensions(self, bbox_extent):
@@ -119,7 +122,6 @@ def createLabelData(file_name, world, vehicles, projection_matrix, camera_matrix
             # Confirm npc vehicle is within 50 meters
             dist = npc.get_transform().location.distance(ego_actor.get_transform().location)
 
-
             # TODO: Calculate occlusion and truncation and replace dist heuristic
 
             if dist < 50:
@@ -132,12 +134,10 @@ def createLabelData(file_name, world, vehicles, projection_matrix, camera_matrix
                     
                     label = Label()
 
-                    # Record vehicle type
+                    # Record vehicle type. Currently only vehicles are spawned.
                     for vehicle in vehicles:
                         if vehicle.get_id() == npc.id:
-                            label.class_name = vehicle.type 
-                        else:
-                            label = 'DontCare'
+                            label.class_name = "Car"
 
                     # Record location and dimensions of vehicle
                     label.location = [npc.bounding_box.location.x, npc.bounding_box.location.y, npc.bounding_box.location.z]
@@ -145,11 +145,14 @@ def createLabelData(file_name, world, vehicles, projection_matrix, camera_matrix
                     # write 2d bounding boxes seen from ego_actor to file
                     Bounding_Boxes = GenerateBoundingBoxes(npc, projection_matrix, camera_matrix)
 
+                    # Set vehicle's 2D bounding box
                     x_max, x_min, y_max, y_min = Bounding_Boxes.build2dBoundingBox()
                     if x_min > 0 and x_max < WINDOW_WIDTH and y_min > 0 and y_max < WINDOW_HEIGHT: 
-                        label.bounding_box = [x_max, x_min, y_max, y_min]
+                        label.set_bbox((x_max, x_min, y_max, y_min))
 
-                    label.dimensions = [float(npc.bounding_box.extent.x * 2), float(npc.bounding_box.extent.y * 2), float(npc.bounding_box.extent.z * 2)]
+                    # Set vehicle 3D object dimensions
+                    bbox_extent = (float(npc.bounding_box.extent.z * 2), float(npc.bounding_box.extent.x * 2), float(npc.bounding_box.extent.y * 2))
+                    label.set_3d_object_dimensions(bbox_extent)
 
                     # Record camera angle
                     label.rotation_y = ego_actor.get_transform().rotation.yaw
