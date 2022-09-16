@@ -108,6 +108,8 @@ class Label:
 # Creates Label data
 def createLabelData(file_name, world, vehicles, projection_matrix, camera_matrix, ego_actor):
     
+    f = open(file_name, 'a+')
+    
     # Loop through all vehicles in world
     for npc in world.get_actors().filter('*vehicle*'):
 
@@ -119,7 +121,7 @@ def createLabelData(file_name, world, vehicles, projection_matrix, camera_matrix
 
 
             # TODO: Calculate occlusion and truncation and replace dist heuristic
-            
+
             if dist < 50:
                 
                 # Determine if vehicle is in front of the camera
@@ -129,8 +131,6 @@ def createLabelData(file_name, world, vehicles, projection_matrix, camera_matrix
                 if forward_vec.dot(ray) > 1:
                     
                     label = Label()
-                    
-                    f = open(file_name, 'a+')
 
                     # Record vehicle type
                     for vehicle in vehicles:
