@@ -7,23 +7,25 @@ import os
 import time
 import queue
 import math
-from GenerateLabelFile import Label
-from GenerateCalibFile import Calib
+from GenerateLabelFile import *
+from GenerateCalibFile import *
 
 from GenerateBoundingBoxes import GenerateBoundingBoxes
 from Vehicle import *
 import numpy as np
 from math import cos, sin
-from utils import degrees_to_radians, transform_lidar
+from utils import *
 
 from constants import *
 from dataexport import save_lidar_data
 
 #from carla.Transform import *
 
-# Create lidar path
-if not os.path.exists(LIDAR_PATH):
-    os.mkdir(LIDAR_PATH)
+# Set up file structure
+create_kitti_file_structure()
+
+# Variable to decide whether to save to testing or training folder. True for training, False otherwise
+save_to_train = True
 
 # Set up world
 client = carla.Client('localhost', 2000)
@@ -106,76 +108,13 @@ projection_matrix = GenerateBoundingBoxes.build_projection_matrix(WINDOW_WIDTH, 
 camera_to_car_transform = int_cam1.get_transform()
 #lidar_to_car_transform = int_lidar1.get_transform() * Transform(Rotation(yaw=90), Scale(z=-1))
 
-# Creates Label data
-def createLabelData(actor_name, ego_actor):
-    # loop through all vehicles in world
-    for npc in world.get_actors().filter('*vehicle*'):
-        # check if vehicle isn't the same as ego actor
-        if npc.id != ego_actor.id:
-            # confirm npc vehicle is within 50 meters
-            dist = npc.get_transform().location.distance(ego_actor.get_transform().location)
-            if dist < 50:
-                # determine if vehicle is in front of the camera
-                forward_vec = ego_actor.get_transform().get_forward_vector()
-                ray = npc.get_transform().location - ego_actor.get_transform().location
-                if forward_vec.dot(ray) > 1:
-                    # create state object
-                    label = Label()
-                    # open file
-                    label_data_path = os.path.abspath(".\\labels.txt")
-                    # f = open(label_data_path, 'a')
-
-                    # Record vehicle type
-                    for vehicle in vehicles:
-                        if vehicle.get_id() == npc.id:
-                            label.class_name = vehicle.type 
-                        else:
-                            label = 'DontCare'
-
-                    # Record location and dimensions of vehicle
-                    label.location = [npc.bounding_box.location.x, npc.bounding_box.location.y, npc.bounding_box.location.z]
-
-                    # write 2d bounding boxes seen from ego_actor to file
-                    Bounding_Boxes = GenerateBoundingBoxes(npc, projection_matrix, camera_matrix)
-
-                    x_max, x_min, y_max, y_min = Bounding_Boxes.build2dBoundingBox()
-                    if x_min > 0 and x_max < WINDOW_WIDTH and y_min > 0 and y_max < WINDOW_HEIGHT: 
-                        label.bounding_box = [x_max, x_min, y_max, y_min]
-
-                    # TODO: Calculate occlusion and truncation
-
-                    label.dimensions = [float(npc.bounding_box.extent.x * 2), float(npc.bounding_box.extent.y * 2), float(npc.bounding_box.extent.z * 2)]
-
-                    # Record camera angle
-                    label.rotation_y = ego_actor.get_transform().rotation.yaw
-                    
-                    #     f.write(f'2D Bounding Box from view of ' + actor_name + ': ' + str([x_max, x_min, y_max, y_min]) + '\n')
-                    
-                    # f.close()
-
-def createCalibData(WINDOW_HEIGHT, WINDOW_WIDTH):
-    calib = Calib(WINDOW_HEIGHT, WINDOW_WIDTH)
-    calib.save_calib_matrix("calib.txt")
-
-# set up file system
-os.chdir("..\\")
-
-# start server tick
+# Start server tick
 tick = 0
 
 while True:
+    
     world.tick()
     tick += 1
-
-    # if (tick % 10 == 0):
-        # get current date and time
-        # current_date_time = datetime.now().strftime("%m-%d-%Y, %H-%M-%S")
-
-        # change directory to sub folder
-    path = os.path.abspath(".\\") + f"\\{tick}"
-    if not os.path.exists(path):
-        os.mkdir(path)
-    os.chdir(path)
 
     #measurements, sensor_data = client.read_data()
 
@@ -183,28 +122,27 @@ while True:
     #        measurements.player_measurements.transform
     #    )
 
-    # save intersection camera data
-    int_cam1_path = os.path.abspath(".\\INT_CAMERA1")
-    int_cam2_path = os.path.abspath(".\\INT_CAMERA2")
+    # Deque data
     int_cam1_image = int_cam1_queue.get()
     int_cam2_image = int_cam2_queue.get()
-    int_cam1_image.save_to_disk(int_cam1_path)
-    int_cam2_image.save_to_disk(int_cam2_path)
-
-    # save intersection lidar data
-    lidar_path = os.path.abspath(".\\INT_LIDAR1")
     lidar_data = int_lidar1_queue.get()
-    
-    # Save lidar as bin file
-    save_lidar_data(f"{LIDAR_PATH}/{tick}.bin", transform_lidar(lidar_data, int_lidar1, int_cam1))
 
-    # get camera matrix
+    # Get camera matrix
     camera_matrix = numpy.array(int_cam1.get_transform().get_inverse_matrix())
+
+    # Save to training if save_to_train is True, testing otherwise
+    curr_folder = TRAINING_FOLDER if save_to_train else TESTING_FOLDER
     
-    createLabelData("int_cam1", int_cam1)
+    # Save data
+    int_cam1_image.save_to_disk(f"{curr_folder}/tick")
+    #int_cam2_image.save_to_disk(f"{curr_folder}/tick")
+
+    save_lidar_data(f"{curr_folder}/velodyne/{tick}.bin", transform_lidar(lidar_data, int_lidar1, int_cam1))
+    
+    createCalibData(f"{curr_folder}/calib/{tick}.txt")
 
     # TODO: Save Label data to file
+    createLabelData("int_cam1", int_cam1)
 
-    createCalibData(WINDOW_HEIGHT, WINDOW_WIDTH)
-
-    os.chdir("..\\")
+    # Flip save_to_train
+    save_to_train = not save_to_train
