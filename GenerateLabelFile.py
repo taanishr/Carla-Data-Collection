@@ -153,6 +153,6 @@ def createLabelData(file_name, world, vehicles, projection_matrix, camera_matrix
                     # Record camera angle
                     label.rotation_y = ego_actor.get_transform().rotation.yaw
                     
-                    #     f.write(f'2D Bounding Box from view of ' + actor_name + ': ' + str([x_max, x_min, y_max, y_min]) + '\n')
-                    
-                    # f.close()
+                    f.write(label)  
+    
+    f.close()
