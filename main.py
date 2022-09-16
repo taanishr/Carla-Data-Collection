@@ -106,3 +106,6 @@ while True:
 
     # Flip save_to_train
     save_to_train = not save_to_train
+
+    # Log to console
+    print(f"Generated data for clock tick {tick}")
