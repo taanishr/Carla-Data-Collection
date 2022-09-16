@@ -106,7 +106,7 @@ class Label:
         return "{} {} {} {} {} {} {} {}".format(self.type, self.truncated, self.occluded, self.alpha, bbox_format, self.dimensions, self.location, self.rotation_y)
 
 # Creates Label data
-def createLabelData(world, vehicles, projection_matrix, camera_matrix,actor_name, ego_actor):
+def createLabelData(file_name, world, vehicles, projection_matrix, camera_matrix, ego_actor):
     
     # Loop through all vehicles in world
     for npc in world.get_actors().filter('*vehicle*'):
@@ -122,12 +122,12 @@ def createLabelData(world, vehicles, projection_matrix, camera_matrix,actor_name
                 # Determine if vehicle is in front of the camera
                 forward_vec = ego_actor.get_transform().get_forward_vector()
                 ray = npc.get_transform().location - ego_actor.get_transform().location
+                
                 if forward_vec.dot(ray) > 1:
-                    # create state object
+                    
                     label = Label()
-                    # open file
-                    label_data_path = os.path.abspath(".\\labels.txt")
-                    # f = open(label_data_path, 'a')
+                    
+                    f = open(file_name, 'a+')
 
                     # Record vehicle type
                     for vehicle in vehicles:
