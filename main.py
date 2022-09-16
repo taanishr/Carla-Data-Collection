@@ -91,7 +91,7 @@ while True:
     #        measurements.player_measurements.transform
     #    )
 
-    # Deque data
+    # Dequeue data
     int_cam1_image = int_cam1_queue.get()
     lidar_data = int_lidar1_queue.get()
 
