@@ -1,4 +1,7 @@
 from math import pi
+import os
+from constants import WINDOW_HEIGHT, WINDOW_WIDTH
+from GenerateBoundingBoxes import GenerateBoundingBoxes
 
 class Label:
     def __init__(self):
@@ -101,3 +104,55 @@ class Label:
             bbox_format = " ".join([str(x) for x in self.bbox])
 
         return "{} {} {} {} {} {} {} {}".format(self.type, self.truncated, self.occluded, self.alpha, bbox_format, self.dimensions, self.location, self.rotation_y)
+
+# Creates Label data
+def createLabelData(world, vehicles, projection_matrix, camera_matrix,actor_name, ego_actor):
+    
+    # Loop through all vehicles in world
+    for npc in world.get_actors().filter('*vehicle*'):
+
+        # Check if vehicle isn't the same as ego actor
+        if npc.id != ego_actor.id:
+
+            # Confirm npc vehicle is within 50 meters
+            dist = npc.get_transform().location.distance(ego_actor.get_transform().location)
+
+            if dist < 50:
+                
+                # Determine if vehicle is in front of the camera
+                forward_vec = ego_actor.get_transform().get_forward_vector()
+                ray = npc.get_transform().location - ego_actor.get_transform().location
+                if forward_vec.dot(ray) > 1:
+                    # create state object
+                    label = Label()
+                    # open file
+                    label_data_path = os.path.abspath(".\\labels.txt")
+                    # f = open(label_data_path, 'a')
+
+                    # Record vehicle type
+                    for vehicle in vehicles:
+                        if vehicle.get_id() == npc.id:
+                            label.class_name = vehicle.type 
+                        else:
+                            label = 'DontCare'
+
+                    # Record location and dimensions of vehicle
+                    label.location = [npc.bounding_box.location.x, npc.bounding_box.location.y, npc.bounding_box.location.z]
+
+                    # write 2d bounding boxes seen from ego_actor to file
+                    Bounding_Boxes = GenerateBoundingBoxes(npc, projection_matrix, camera_matrix)
+
+                    x_max, x_min, y_max, y_min = Bounding_Boxes.build2dBoundingBox()
+                    if x_min > 0 and x_max < WINDOW_WIDTH and y_min > 0 and y_max < WINDOW_HEIGHT: 
+                        label.bounding_box = [x_max, x_min, y_max, y_min]
+
+                    # TODO: Calculate occlusion and truncation
+
+                    label.dimensions = [float(npc.bounding_box.extent.x * 2), float(npc.bounding_box.extent.y * 2), float(npc.bounding_box.extent.z * 2)]
+
+                    # Record camera angle
+                    label.rotation_y = ego_actor.get_transform().rotation.yaw
+                    
+                    #     f.write(f'2D Bounding Box from view of ' + actor_name + ': ' + str([x_max, x_min, y_max, y_min]) + '\n')
+                    
+                    # f.close()
