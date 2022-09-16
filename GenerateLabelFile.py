@@ -29,11 +29,10 @@ class Label:
         self.alpha = alpha
 
     def set_bbox(self, bbox):
-        """ 
+        assert len(bbox) == 4, """ 
         Bbox must be 2D bounding box of object in the image (0-based index):
         contains left, top, right, bottom pixel coordinates (two points)
         """
-        assert len(bbox) == 4
         self.bbox = bbox
 
     def set_3d_object_dimensions(self, bbox_extent):
@@ -49,7 +48,7 @@ class Label:
         self.dimensions = "{} {} {}".format(2*height, 2*width, 2*length)
 
     def set_3d_object_location(self, obj_location):
-        """ TODO: Change this to 
+        """ 
             Converts the 3D object location from CARLA coordinates and saves them as KITTI coordinates in the object
             In Unreal, the coordinate system of the engine is defined as, which is the same as the lidar points
             z
@@ -74,24 +73,19 @@ class Label:
             Carla: X   Y   Z
             KITTI:-X  -Y   Z
         """
-        # Object location is four values (x, y, z, w). We only care about three of them (xyz)
-        x, y, z = [float(x) for x in obj_location][0:3]
+        
+        x, y, z = [float(x) for x in obj_location]
+        
         assert None not in [
             self.extent, self.type], "Extent and type must be set before location!"
-        if self.type == "Pedestrian":
-            # Since the midpoint/location of the pedestrian is in the middle of the agent, while for car it is at the bottom
+        
+        if self.class_name == "Pedestrian":
+            # Because the midpoint/location of the pedestrian is in the middle of the agent, while for car it is at the bottom
             # we need to subtract the bbox extent in the height direction when adding location of pedestrian.
             y -= self.extent[0]
-        # Convert from Carla coordinate system to KITTI
-        # This works for AVOD (image)
-        #x *= -1
-        #y *= -1
-        #self.location = " ".join(map(str, [y, -z, x]))
-        #self.location = " ".join(map(str, [-x, -y, z]))
+        
         self.location = " ".join(map(str, [y, -z, x]))
-        # This works for SECOND (lidar)
-        #self.location = " ".join(map(str, [z, x, y]))
-        #self.location = " ".join(map(str, [z, x, -y]))
+        
 
     def set_rotation_y(self, rotation_y: float):
         assert - \
@@ -140,12 +134,10 @@ def createLabelData(file_name, world, vehicles, projection_matrix, camera_matrix
                             label.class_name = "Car"
 
                     # Record location and dimensions of vehicle
-                    label.location = [npc.bounding_box.location.x, npc.bounding_box.location.y, npc.bounding_box.location.z]
+                    label.set_3d_object_location((npc.bounding_box.location.x, npc.bounding_box.location.y, npc.bounding_box.location.z))
 
                     # write 2d bounding boxes seen from ego_actor to file
                     Bounding_Boxes = GenerateBoundingBoxes(npc, projection_matrix, camera_matrix)
-
-                    # Set vehicle's 2D bounding box
                     x_max, x_min, y_max, y_min = Bounding_Boxes.build2dBoundingBox()
                     if x_min > 0 and x_max < WINDOW_WIDTH and y_min > 0 and y_max < WINDOW_HEIGHT: 
                         label.set_bbox((x_max, x_min, y_max, y_min))
