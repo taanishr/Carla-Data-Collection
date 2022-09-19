@@ -175,11 +175,11 @@ def createLabelData(file_name, world, vehicles, projection_matrix, camera_matrix
                     # Get car's forward vector
                     npc_forward_vec = npc.get_transform().get_forward_vector()
                     # Get magnitudes of car's forward vector and camera to obj vector
-                    ray_m = sqrt(ray.x**2+ray.y**2+ray.z**2)
-                    npc_forward_vec_m = sqrt(npc_forward_vec.x**2+npc_forward_vec.y**2+npc_forward_vec.z**2)
+                    ray_m = ray.length()
+                    npc_forward_vec_m = npc_forward_vec.length()
                     
                     # Calculate angle between vectors
-                    alpha = radians(acos(ray.dot(npc_forward_vec)/(npc_forward_vec_m*ray_m)))
+                    alpha = acos(ray.dot(npc_forward_vec)/(npc_forward_vec_m*ray_m))
 
                     # Set observation angle
                     label.set_alpha(alpha)
