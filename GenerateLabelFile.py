@@ -37,7 +37,7 @@ class Label:
         self.extent = None
         
     def set_class_name(self, obj_type: str):
-        self.type = obj_type
+        self.class_name = obj_type
     
     def set_truncated(self, truncated: float):
         self.truncated = truncated
