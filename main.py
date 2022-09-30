@@ -59,7 +59,7 @@ int_depth_cam_queue, int_lidar1_queue = generate_sensors(world, camera_blueprint
 vehicle_blueprint = blueprint_library.filter('model3')[0]
 
 # Spawn vehicles
-vehicle_spawn_point = carla.Transform(carla.Location(x=45, y=58.3, z=1))
+vehicle_spawn_point = carla.Transform(carla.Location(x=80, y=27.83, z=1))
 vehicles = []
 ego_vehicle = EgoVehicle(world, vehicle_blueprint, 'car', vehicle_spawn_point, tm)
 ego_vehicle.enable_driving()
