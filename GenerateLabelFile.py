@@ -125,64 +125,63 @@ class Label:
 # Creates Label data
 def createLabelData(file_name, world, vehicles, projection_matrix, camera_matrix, ego_actor):
     
-    f = open(file_name, 'a+')
-    
-    # Loop through all vehicles in world
-    for npc in world.get_actors().filter('*vehicle*'):
+    with open(file_name, 'a+') as f:
+        
+        # Loop through all vehicles in world
+        for npc in world.get_actors().filter('*vehicle*'):
 
-        # Check if vehicle isn't the same as ego actor
-        if npc.id != ego_actor.id:
+            # Check if vehicle isn't the same as ego actor
+            if npc.id != ego_actor.id:
 
-            # Confirm npc vehicle is within 50 meters
-            dist = npc.get_transform().location.distance(ego_actor.get_transform().location)
+                # Confirm npc vehicle is within 50 meters
+                dist = npc.get_transform().location.distance(ego_actor.get_transform().location)
 
-            # TODO: Calculate occlusion and truncation and replace dist heuristic
+                # TODO: Calculate occlusion and truncation and replace dist heuristic
 
-            if dist < 50:
-                
-                # Determine if vehicle is in front of the camera
-                forward_vec = ego_actor.get_transform().get_forward_vector()
-                ray = npc.get_transform().location - ego_actor.get_transform().location
-                
-                if forward_vec.dot(ray) > 1:
+                if dist < 50:
                     
-                    label = Label()
-
-                    # Record vehicle type. Currently only vehicles are spawned.
-                    for vehicle in vehicles:
-                        if vehicle.get_id() == npc.id:
-                            label.set_class_name("Car")
-
-                    # write 2d bounding boxes seen from ego_actor to file
-                    Bounding_Boxes = GenerateBoundingBoxes(npc, projection_matrix, camera_matrix)
-                    x_max, x_min, y_max, y_min = Bounding_Boxes.build2dBoundingBox()
-                    if x_min > 0 and x_max < WINDOW_WIDTH and y_min > 0 and y_max < WINDOW_HEIGHT: 
-                        label.set_bbox((x_max, x_min, y_max, y_min))
-
-                    # Set vehicle 3D object dimensions and extent
-                    bbox_extent = (float(npc.bounding_box.extent.z * 2), float(npc.bounding_box.extent.x * 2), float(npc.bounding_box.extent.y * 2))
-                    label.set_3d_object_dimensions(bbox_extent)
-
-                    # Record location and dimensions of vehicle
-                    label.set_3d_object_location((npc.bounding_box.location.x, npc.bounding_box.location.y, npc.bounding_box.location.z))
-
-                    # Record camera angle
-                    label.set_rotation_y(radians(ego_actor.get_transform().rotation.yaw))
+                    # Determine if vehicle is in front of the camera
+                    forward_vec = ego_actor.get_transform().get_forward_vector()
+                    ray = npc.get_transform().location - ego_actor.get_transform().location
                     
-                    # Record observation angle
-                    # Get car's forward vector
-                    npc_forward_vec = npc.get_transform().get_forward_vector()
-                    
-                    # Get magnitudes of car's forward vector and camera to obj vector
-                    ray_m = ray.length()
-                    npc_forward_vec_m = npc_forward_vec.length()
-                    
-                    # Calculate angle between vectors
-                    alpha = acos(ray.dot(npc_forward_vec)/(npc_forward_vec_m*ray_m))
+                    if forward_vec.dot(ray) > 1:
+                        
+                        # Create label object
+                        label = Label()
 
-                    # Set observation angle
-                    label.set_alpha(alpha)
+                        # Record vehicle type. Currently only vehicles are spawned.
+                        for vehicle in vehicles:
+                            if vehicle.get_id() == npc.id:
+                                label.set_class_name("Car")
 
-                    f.write(label.__str__())  
-    
-    f.close()
+                        # write 2d bounding boxes seen from ego_actor to file
+                        Bounding_Boxes = GenerateBoundingBoxes(npc, projection_matrix, camera_matrix)
+                        x_max, x_min, y_max, y_min = Bounding_Boxes.build2dBoundingBox()
+                        if x_min > 0 and x_max < WINDOW_WIDTH and y_min > 0 and y_max < WINDOW_HEIGHT: 
+                            label.set_bbox((x_max, x_min, y_max, y_min))
+
+                        # Set vehicle 3D object dimensions and extent
+                        bbox_extent = (float(npc.bounding_box.extent.z * 2), float(npc.bounding_box.extent.x * 2), float(npc.bounding_box.extent.y * 2))
+                        label.set_3d_object_dimensions(bbox_extent)
+
+                        # Record location and dimensions of vehicle
+                        label.set_3d_object_location((npc.bounding_box.location.x, npc.bounding_box.location.y, npc.bounding_box.location.z))
+
+                        # Record camera angle
+                        label.set_rotation_y(radians(ego_actor.get_transform().rotation.yaw))
+                        
+                        # Record observation angle
+                        # Get car's forward vector
+                        npc_forward_vec = npc.get_transform().get_forward_vector()
+                        
+                        # Get magnitudes of car's forward vector and camera to obj vector
+                        ray_m = ray.length()
+                        npc_forward_vec_m = npc_forward_vec.length()
+                        
+                        # Calculate angle between vectors
+                        alpha = acos(ray.dot(npc_forward_vec)/(npc_forward_vec_m*ray_m))
+
+                        # Set observation angle
+                        label.set_alpha(alpha)
+
+                        f.write(label.__str__())  
