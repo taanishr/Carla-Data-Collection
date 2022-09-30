@@ -1,4 +1,4 @@
-from math import pi, acos
+from math import pi, acos, radians
 from constants import WINDOW_HEIGHT, WINDOW_WIDTH
 from GenerateBoundingBoxes import GenerateBoundingBoxes
 
@@ -120,7 +120,7 @@ class Label:
         else:
             bbox_format = " ".join([str(x) for x in self.bbox])
 
-        return "{} {} {} {} {} {} {} {}".format(self.type, self.truncated, self.occluded, self.alpha, bbox_format, self.dimensions, self.location, self.rotation_y)
+        return "{} {} {} {} {} {} {} {}".format(self.class_name, self.truncated, self.occluded, self.alpha, bbox_format, self.dimensions, self.location, self.rotation_y)
 
 # Creates Label data
 def createLabelData(file_name, world, vehicles, projection_matrix, camera_matrix, ego_actor):
@@ -167,7 +167,7 @@ def createLabelData(file_name, world, vehicles, projection_matrix, camera_matrix
                     label.set_3d_object_location((npc.bounding_box.location.x, npc.bounding_box.location.y, npc.bounding_box.location.z))
 
                     # Record camera angle
-                    label.set_rotation_y(ego_actor.get_transform().rotation.yaw)
+                    label.set_rotation_y(radians(ego_actor.get_transform().rotation.yaw))
                     
                     # Record observation angle
                     # Get car's forward vector
@@ -183,6 +183,6 @@ def createLabelData(file_name, world, vehicles, projection_matrix, camera_matrix
                     # Set observation angle
                     label.set_alpha(alpha)
 
-                    f.write(label)  
+                    f.write(label.__str__())  
     
     f.close()
