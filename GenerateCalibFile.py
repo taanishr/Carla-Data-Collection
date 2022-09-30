@@ -1,5 +1,6 @@
 import numpy as np
 import math
+from constants import WINDOW_HEIGHT, WINDOW_WIDTH
 
 class Calib:
     def __init__(self, height, width):
