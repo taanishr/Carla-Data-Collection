@@ -99,7 +99,7 @@ while True:
     curr_folder = TRAINING_FOLDER if save_to_train else TESTING_FOLDER
     
     # Save data
-    int_cam1_image.save_to_disk(f"{curr_folder}/images_2/tick")
+    int_cam1_image.save_to_disk(f"{curr_folder}/images_2/{tick}")
     save_lidar_data(f"{curr_folder}/velodyne/{tick}.bin", transform_lidar(lidar_data, int_lidar1, int_cam1))
     createCalibData(f"{curr_folder}/calib/{tick}.txt")
     createLabelData(f"{curr_folder}/label_2/{tick}.txt", world, vehicles, projection_matrix, camera_matrix, int_cam1)
