@@ -1,9 +1,8 @@
 # Carla-Data-Collection
 
-## Known Issues
-- Saving KITTI labels has not yet been implemented
-- Occlusion has not been implemented into KITTI labels yet (view KITTI label format [here](https://github.com/bostondiditeam/kitti/blob/master/resources/devkit_object/readme.txt)
-
-## TODOS (Not necessary)
+## TODOS
+- KITTI label creation needs to be tested
+- Occlusion, truncation, and observation angle have not been implemented into KITTI labels yet (view KITTI label format [here](https://github.com/bostondiditeam/kitti/blob/master/resources/devkit_object/readme.txt)
 - Implement script to make training, validation, and testing sets
-- Adjust saving of files such that it follows the KITTI file structure as seen on this [page](https://mmdetection3d.readthedocs.io/en/latest/data_preparation.html#before-preparation)
+- Create a more robust list of agents, so towns aren't just filled with cars
+- Use other CARLA maps to create more varied data
