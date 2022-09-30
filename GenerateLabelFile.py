@@ -1,4 +1,4 @@
-from math import pi
+from math import pi, acos
 from constants import WINDOW_HEIGHT, WINDOW_WIDTH
 from GenerateBoundingBoxes import GenerateBoundingBoxes
 
@@ -169,6 +169,20 @@ def createLabelData(file_name, world, vehicles, projection_matrix, camera_matrix
                     # Record camera angle
                     label.set_rotation_y(ego_actor.get_transform().rotation.yaw)
                     
+                    # Record observation angle
+                    # Get car's forward vector
+                    npc_forward_vec = npc.get_transform().get_forward_vector()
+                    
+                    # Get magnitudes of car's forward vector and camera to obj vector
+                    ray_m = ray.length()
+                    npc_forward_vec_m = npc_forward_vec.length()
+                    
+                    # Calculate angle between vectors
+                    alpha = acos(ray.dot(npc_forward_vec)/(npc_forward_vec_m*ray_m))
+
+                    # Set observation angle
+                    label.set_alpha(alpha)
+
                     f.write(label)  
     
     f.close()
