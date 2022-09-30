@@ -49,17 +49,17 @@ tm = client.get_trafficmanager()
 tm.set_synchronous_mode(True)
 
 # Setup and generate sensors
-camera_blueprint, lidar_blueprint, depth_cam_blueprint = setup_sensors()
+camera_blueprint, lidar_blueprint, depth_cam_blueprint = setup_sensors(blueprint_library)
 
 int_cam1, int_cam2, depth_cam,\
 int_lidar1, int_cam1_queue, int_cam2_queue, \
-int_depth_cam_queue, int_lidar1_queue = generate_sensors()
+int_depth_cam_queue, int_lidar1_queue = generate_sensors(world, camera_blueprint, lidar_blueprint, depth_cam_blueprint)
 
 # Spawn ego vehicle
 vehicle_blueprint = blueprint_library.filter('model3')[0]
 
 # Spawn vehicles
-vehicle_spawn_point = carla.Transform(carla.Location(x=100, y=40.83, z=1))
+vehicle_spawn_point = carla.Transform(carla.Location(x=50, y=40.83, z=1))
 vehicles = []
 ego_vehicle = EgoVehicle(world, vehicle_blueprint, 'car', vehicle_spawn_point, tm)
 ego_vehicle.enable_driving()
