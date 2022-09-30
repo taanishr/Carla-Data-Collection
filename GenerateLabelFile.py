@@ -63,7 +63,7 @@ class Label:
         # y: to the right of the vehicle
         # z: up (direction of car roof)
         # However, Kitti expects height, width and length (z, y, x):
-        height, width, length = bbox_extent.z, bbox_extent.x, bbox_extent.y
+        height, width, length = bbox_extent[0], bbox_extent[1], bbox_extent[2]
         # Since Carla gives us bbox extent, which is a half-box, multiply all by two
         self.extent = (height, width, length)
         self.dimensions = "{} {} {}".format(2*height, 2*width, 2*length)
@@ -98,7 +98,7 @@ class Label:
         x, y, z = [float(x) for x in obj_location]
         
         assert None not in [
-            self.extent, self.type], "Extent and type must be set before location!"
+            self.extent, self.class_name], "Extent and type must be set before location!"
         
         if self.class_name == "Pedestrian":
             # Because the midpoint/location of the pedestrian is in the middle of the agent, while for car it is at the bottom
@@ -153,9 +153,6 @@ def createLabelData(file_name, world, vehicles, projection_matrix, camera_matrix
                         if vehicle.get_id() == npc.id:
                             label.set_class_name("Car")
 
-                    # Record location and dimensions of vehicle
-                    label.set_3d_object_location((npc.bounding_box.location.x, npc.bounding_box.location.y, npc.bounding_box.location.z))
-
                     # write 2d bounding boxes seen from ego_actor to file
                     Bounding_Boxes = GenerateBoundingBoxes(npc, projection_matrix, camera_matrix)
                     x_max, x_min, y_max, y_min = Bounding_Boxes.build2dBoundingBox()
@@ -165,6 +162,9 @@ def createLabelData(file_name, world, vehicles, projection_matrix, camera_matrix
                     # Set vehicle 3D object dimensions and extent
                     bbox_extent = (float(npc.bounding_box.extent.z * 2), float(npc.bounding_box.extent.x * 2), float(npc.bounding_box.extent.y * 2))
                     label.set_3d_object_dimensions(bbox_extent)
+
+                    # Record location and dimensions of vehicle
+                    label.set_3d_object_location((npc.bounding_box.location.x, npc.bounding_box.location.y, npc.bounding_box.location.z))
 
                     # Record camera angle
                     label.set_rotation_y(ego_actor.get_transform().rotation.yaw)
