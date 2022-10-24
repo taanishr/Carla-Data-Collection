@@ -1,12 +1,11 @@
 # Carla-Data-Collection
 This repository generates a KITTI-like dataset from the POV of a traffic camera, using the CARLA simulator. It uses KITTI sensor parameters as specified [here](https://www.cvlibs.net/datasets/kitti/setup.php). 
 
-## Setup
+## Set up
 1. [Setup CARLA 0.9.13](https://github.com/carla-simulator/carla/releases)
 2. Clone this repo into the root folder of the CARLA installation
-3. Setup an environment
-   i. According to [this](https://carla.readthedocs.io/en/latest/start_quickstart/) the version of Python 3 that is used should not matter too much.
-   ii. Run `pip install -r requirements.txt` from the root of the local repo folder.
+4. Set up an environment with Anaconda. According to [this](https://carla.readthedocs.io/en/latest/start_quickstart/) the version of Python 3 that is used should not matter too much.
+5. Run `pip install -r requirements.txt` from the root of the local repo folder.
 
 
 ## Usage
